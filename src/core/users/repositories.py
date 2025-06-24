@@ -1,14 +1,12 @@
 from abc import abstractmethod
 from typing import Protocol
-from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.operators import eq
 
 from src.core.auth.models import LoginInDTO
-from src.core.users.mappers import UserMapperProtocol
-from src.core.users.models import User, UserDTO, UserID
+from src.core.users.models import User, UserID
 
 
 class UserRepositoryProtocol(Protocol):
@@ -31,10 +29,8 @@ class UserRepository(UserRepositoryProtocol):
     def __init__(
         self,
         session: AsyncSession,
-        mapper: UserMapperProtocol,
     ):
         self.session = session
-        self.mapper = mapper
 
     async def add_user(
         self,

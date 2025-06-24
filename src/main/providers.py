@@ -18,7 +18,8 @@ from src.core.database.transaction_manager import (
     TransactionManager,
     TransactionManagerInterface,
 )
-from src.core.users.mappers import UserMapper, UserMapperProtocol
+from src.core.posts.repositories import CategoryRepository, CategoryRepositoryProtocol
+from src.core.posts.services import PostServices
 from src.core.users.repositories import UserRepository, UserRepositoryProtocol
 from src.main.config import PostgresConfig
 
@@ -75,12 +76,19 @@ class UserProvider(Provider):
         source=UserRepository,
         provides=UserRepositoryProtocol,
     )
-    user_mapper = provide(
-        UserMapper,
+
+
+class PostProvider(Provider):
+    category_repository = provide(
+        CategoryRepository,
         scope=Scope.REQUEST,
     )
-    user_mapper_protocol = alias(
-        source=UserMapper,
-        provides=UserMapperProtocol,
+    category_repository_protocol = alias(
+        source=CategoryRepository,
+        provides=CategoryRepositoryProtocol,
     )
 
+    post_services = provide(
+        PostServices,
+        scope=Scope.REQUEST,
+    )

@@ -1,5 +1,3 @@
-import secrets
-
 from src.core.auth.id_providers import IdProvider
 from src.core.auth.models import LoginInDTO
 from src.core.database.transaction_manager import TransactionManager
@@ -23,10 +21,10 @@ class AuthService:
     ) -> UserID:
         user_id = await id_provider.get_current_user_id()
         if user_id is None:
-            user_id = await self.user_repository.add_user(
-                user_dto=LoginInDTO(
-                    telegram_id=login_in_dto.telegram_id,
-                ),
-            )
-            await self.transaction_manager.commit()
+            async with self.transaction_manager:
+                user_id = await self.user_repository.add_user(
+                    user_dto=LoginInDTO(
+                        telegram_id=login_in_dto.telegram_id,
+                    ),
+                )
         return user_id

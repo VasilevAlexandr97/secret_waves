@@ -1,10 +1,18 @@
 import uuid
 
+from dataclasses import dataclass
+
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database.mixins import TimestampsMixin
 from src.core.database.models import Base
+
+
+@dataclass
+class CategoryDTO:
+    id: int
+    name: str
 
 
 class Category(Base, TimestampsMixin):

@@ -5,7 +5,12 @@ from dishka import Provider, Scope, make_async_container, provide
 from dishka.integrations.aiogram import setup_dishka
 
 from src.main.config import PostgresConfig, TgBotConfig, load_tgbot_config
-from src.main.providers import AuthProvider, DatabaseProvider, UserProvider
+from src.main.providers import (
+    AuthProvider,
+    DatabaseProvider,
+    PostProvider,
+    UserProvider,
+)
 from src.telegram_bot.handlers.private.start import start_router
 from src.telegram_bot.middlewares.id_provider import IdProviderMiddleware
 
@@ -44,6 +49,7 @@ def create_tgbot_app() -> tuple[Bot, Dispatcher]:
         DatabaseProvider(),
         AuthProvider(),
         UserProvider(),
+        PostProvider(),
     )
     setup_dishka(container, dp)
     return bot, dp

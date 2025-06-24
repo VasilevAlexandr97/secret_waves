@@ -6,6 +6,8 @@ from dishka.integrations.aiogram import FromDishka, inject
 from src.core.auth.id_providers import IdProvider
 from src.core.auth.models import LoginInDTO
 from src.core.auth.services import AuthService
+from src.core.posts.services import PostServices
+from src.telegram_bot.keyboards.default import start_kb
 
 start_router = Router()
 start_router.message.filter(F.chat.type == ChatType.PRIVATE)
@@ -23,10 +25,15 @@ async def command_start_handler(
             telegram_id=message.from_user.id,
         ),
     )
-    # await auth_service.get_or_create_user_by_telegram(
-    #     telegram_id=message.from_user.id,
-    # )
-    await message.answer(
-        "Hello! I'm a bot. To get started, please use the /start command."
-    )
 
+    msg = (
+        "Привет! 👋 Добро пожаловать в «Тайные волны» — здесь можно спокойно и анонимно выговориться, поделиться тем, что давно носишь внутри.\n\n"
+        "Это пространство, где ты можешь:\n\n"
+        "• 🗣️ Выплеснуть историю, эмоцию или переживание\n"
+        "• 📖 Почитать, чем делятся другие — честно, тонко, по-настоящему\n"
+        "• 🌊 Выбрать категорию поста для удобного поиска\n"
+        "• 🔒 Выбрать, оставить ли след, чтобы потом вернуться к своим постам\n\n"
+        "Добро пожаловать на борт, пусть «Тайные волны» станут твоим надёжным спутником в мире анонимных признаний! 🌙✨"
+    )
+    kb = start_kb()
+    await message.answer(msg, reply_markup=kb)
