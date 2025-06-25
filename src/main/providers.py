@@ -18,7 +18,10 @@ from src.core.database.transaction_manager import (
     TransactionManager,
     TransactionManagerInterface,
 )
-from src.core.posts.repositories import CategoryRepository, CategoryRepositoryProtocol
+from src.core.posts.repositories import (
+    CategoryRepository,
+    CategoryRepositoryProtocol,
+)
 from src.core.posts.services import PostServices
 from src.core.users.repositories import UserRepository, UserRepositoryProtocol
 from src.main.config import PostgresConfig

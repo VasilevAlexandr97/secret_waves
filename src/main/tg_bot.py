@@ -13,6 +13,7 @@ from src.main.providers import (
 )
 from src.telegram_bot.handlers.private.start import start_router
 from src.telegram_bot.middlewares.id_provider import IdProviderMiddleware
+from src.telegram_bot.services.message_service import MessageService
 
 
 class TgBotConfigProvider(Provider):
@@ -27,6 +28,10 @@ class TgBotConfigProvider(Provider):
     @provide(scope=Scope.APP)
     def get_postgres_config(self) -> PostgresConfig:
         return self.config.postgres
+
+    @provide(scope=Scope.APP)
+    def get_message_service(self) -> MessageService:
+        return MessageService(self.config.messages)
 
 
 def create_tgbot_app() -> tuple[Bot, Dispatcher]:
