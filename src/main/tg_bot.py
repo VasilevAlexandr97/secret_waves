@@ -11,6 +11,7 @@ from src.main.providers import (
     PostProvider,
     UserProvider,
 )
+from src.telegram_bot.handlers.private.create_post import create_post_router
 from src.telegram_bot.handlers.private.start import start_router
 from src.telegram_bot.middlewares.id_provider import IdProviderMiddleware
 from src.telegram_bot.services.message_service import MessageService
@@ -48,6 +49,7 @@ def create_tgbot_app() -> tuple[Bot, Dispatcher]:
 
     # Include handlers
     dp.include_router(start_router)
+    dp.include_router(create_post_router)
 
     container = make_async_container(
         TgBotConfigProvider(config),

@@ -12,17 +12,13 @@ start_message: |
 
 buttons:
   create_post:
-    key: create_post
     text: 📝 Придать огласке
 
   read_stories:
-    key: read_stories
     text: 📚 Читать истории
 
   my_statistics:
-    key: my_statistics
     text: 📊 Моя статистика
 
   help:
-    key: help
     text: ❓ Помощь

@@ -19,8 +19,9 @@ class AuthService:
         id_provider: IdProvider,
         login_in_dto: LoginInDTO,
     ) -> UserID:
-        user_id = await id_provider.get_current_user_id()
-        if user_id is None:
+        try:
+            user_id = await id_provider.get_current_user_id()
+        except ValueError:
             async with self.transaction_manager:
                 user_id = await self.user_repository.add_user(
                     user_dto=LoginInDTO(
