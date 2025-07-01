@@ -23,18 +23,6 @@ from src.telegram_bot.services.message_service import MessageService
 logger = logging.getLogger(__name__)
 
 
-async def create_post_start_handler(
-    callback_query: types.CallbackQuery,
-    widget: Group,
-    dialog_manager: DialogManager,
-):
-    logger.debug(f"!!!!!!!!!!!!!!!type widget: {type(widget)}")
-    await dialog_manager.start(
-        CreatePost.input_content,
-        mode=StartMode.RESET_STACK,
-    )
-
-
 @inject
 async def create_post_input_content_handler(
     message: types.Message,
@@ -74,7 +62,7 @@ async def create_post_input_content_handler(
 
 async def create_post_select_category_handler(
     callback_query: types.CallbackQuery,
-    widget: Group,
+    widget: Button,
     dialog_manager: DialogManager,
     item_id: str,
 ):
@@ -85,7 +73,7 @@ async def create_post_select_category_handler(
 
 async def create_post_select_anonymity_handler(
     callback_query: types.CallbackQuery,
-    widget: Group,
+    widget: Button,
     dialog_manager: DialogManager,
 ):
     is_anonymous = int(widget.widget_id.split("_")[-1])
@@ -162,4 +150,3 @@ async def back_to_main_menu_handler(
         text=start_action_prompt_message,
         reply_markup=start_action_inline_kbd,
     )
-

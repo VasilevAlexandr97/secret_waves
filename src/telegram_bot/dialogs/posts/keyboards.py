@@ -9,7 +9,6 @@ from src.telegram_bot.dialogs.posts.handlers import (
     create_post_confirm_handler,
     create_post_select_anonymity_handler,
     create_post_select_category_handler,
-    create_post_start_handler,
 )
 from src.telegram_bot.dialogs.posts.states import CreatePost
 
