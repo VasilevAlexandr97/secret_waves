@@ -2,7 +2,7 @@ from typing import Any, ClassVar
 
 from sqladmin import ModelView
 
-from src.core.posts.models import Category, Post
+from src.core.posts.models import Attachment, Category, Post
 from src.core.users.models import User
 
 
@@ -26,6 +26,17 @@ class PostView(ModelView, model=Post):
         Post.content,
         Post.category_id,
         Post.category,
+        Post.attachment,
         Post.user_id,
         Post.user,
+    ]
+
+
+class AttachmentView(ModelView, model=Attachment):
+    column_list: ClassVar[list[Any]] = [
+        Attachment.id,
+        Attachment.attachment_type,
+        Attachment.file_id,
+        Attachment.post_id,
+        Attachment.post,
     ]

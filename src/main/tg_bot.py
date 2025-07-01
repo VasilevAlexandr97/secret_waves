@@ -1,6 +1,7 @@
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from aiogram_dialog import setup_dialogs
 from dishka import Provider, Scope, make_async_container, provide
 from dishka.integrations.aiogram import setup_dishka
 
@@ -11,7 +12,8 @@ from src.main.providers import (
     PostProvider,
     UserProvider,
 )
-from src.telegram_bot.handlers.private.create_post import create_post_router
+from src.telegram_bot.dialogs.posts.dialogs import create_post_dialog
+from src.telegram_bot.handlers.private.posts import posts_router
 from src.telegram_bot.handlers.private.start import start_router
 from src.telegram_bot.middlewares.id_provider import IdProviderMiddleware
 from src.telegram_bot.services.message_service import MessageService
@@ -35,6 +37,12 @@ class TgBotConfigProvider(Provider):
         return MessageService(self.config.messages)
 
 
+def setup_handlers(dp: Dispatcher):
+    dp.include_router(start_router)
+    dp.include_router(posts_router)
+    dp.include_router(create_post_dialog)
+
+
 def create_tgbot_app() -> tuple[Bot, Dispatcher]:
     config = load_tgbot_config()
 
@@ -46,10 +54,9 @@ def create_tgbot_app() -> tuple[Bot, Dispatcher]:
 
     # Include middlewares
     dp.message.middleware(IdProviderMiddleware())
+    dp.callback_query.middleware(IdProviderMiddleware())
 
-    # Include handlers
-    dp.include_router(start_router)
-    dp.include_router(create_post_router)
+    setup_handlers(dp)
 
     container = make_async_container(
         TgBotConfigProvider(config),
@@ -59,4 +66,5 @@ def create_tgbot_app() -> tuple[Bot, Dispatcher]:
         PostProvider(),
     )
     setup_dishka(container, dp)
+    setup_dialogs(dp)
     return bot, dp

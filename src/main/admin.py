@@ -12,7 +12,12 @@ from fastapi import FastAPI
 from sqladmin import Admin
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from src.admin_panel.views import CategoryView, PostView, UserView
+from src.admin_panel.views import (
+    AttachmentView,
+    CategoryView,
+    PostView,
+    UserView,
+)
 from src.main.config import AdminConfig, PostgresConfig, load_admin_config
 from src.main.providers import AuthProvider, DatabaseProvider, UserProvider
 
@@ -36,6 +41,7 @@ def setup_admin(app: FastAPI, engine: AsyncEngine) -> None:
     admin.add_view(UserView)
     admin.add_view(CategoryView)
     admin.add_view(PostView)
+    admin.add_view(AttachmentView)
 
 
 @asynccontextmanager

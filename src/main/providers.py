@@ -21,8 +21,10 @@ from src.core.database.transaction_manager import (
 from src.core.posts.repositories import (
     CategoryRepository,
     CategoryRepositoryProtocol,
+    PostRepository,
+    PostRepositoryProtocol,
 )
-from src.core.posts.services import PostServices
+from src.core.posts.services import PostService
 from src.core.users.repositories import UserRepository, UserRepositoryProtocol
 from src.main.config import PostgresConfig
 
@@ -91,7 +93,16 @@ class PostProvider(Provider):
         provides=CategoryRepositoryProtocol,
     )
 
+    post_repository = provide(
+        PostRepository,
+        scope=Scope.REQUEST,
+    )
+    post_repository_protocol = alias(
+        source=PostRepository,
+        provides=PostRepositoryProtocol,
+    )
+
     post_services = provide(
-        PostServices,
+        PostService,
         scope=Scope.REQUEST,
     )
