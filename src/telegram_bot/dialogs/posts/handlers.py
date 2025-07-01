@@ -1,9 +1,9 @@
 import logging
 
 from aiogram import types
-from aiogram_dialog import DialogManager, ShowMode, StartMode
+from aiogram_dialog import DialogManager, ShowMode
 from aiogram_dialog.widgets.input import MessageInput
-from aiogram_dialog.widgets.kbd import Button, Cancel, Group
+from aiogram_dialog.widgets.kbd import Button, Cancel
 from dishka import FromDishka
 from dishka.integrations.aiogram_dialog import inject
 
