@@ -1,11 +1,19 @@
 import operator
 
-from aiogram_dialog.widgets.kbd import Button, Cancel, Group, Select, SwitchTo
+from aiogram_dialog import ShowMode, StartMode
+from aiogram_dialog.widgets.kbd import (
+    Button,
+    Cancel,
+    Group,
+    Select,
+    Start,
+    SwitchTo,
+)
 from aiogram_dialog.widgets.text import Format
 
 from src.telegram_bot.constants.messages import MessageKeys
+from src.telegram_bot.dialogs.main.states import Main
 from src.telegram_bot.dialogs.posts.handlers import (
-    back_to_main_menu_handler,
     create_post_confirm_handler,
     create_post_select_anonymity_handler,
     create_post_select_category_handler,
@@ -13,9 +21,12 @@ from src.telegram_bot.dialogs.posts.handlers import (
 from src.telegram_bot.dialogs.posts.states import CreatePost
 
 create_post_input_content_kbd = Group(
-    Cancel(
+    Start(
         Format("{cancel_button[text]}"),
-        on_click=back_to_main_menu_handler,
+        id="create_post_cancel_button",
+        state=Main.MAIN,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.DELETE_AND_SEND,
     ),
 )
 
@@ -33,11 +44,14 @@ create_post_categories_kbd = Group(
     SwitchTo(
         text=Format("{back_button[text]}"),
         id="create_post_back_button",
-        state=CreatePost.input_content,
+        state=CreatePost.INPUT_CONTENT,
     ),
-    Cancel(
+    Start(
         Format("{cancel_button[text]}"),
-        on_click=back_to_main_menu_handler,
+        id="create_post_cancel_button",
+        state=Main.MAIN,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.DELETE_AND_SEND,
     ),
 )
 
@@ -59,11 +73,14 @@ create_post_anonymity_types_kbd = Group(
     SwitchTo(
         text=Format("{back_button[text]}"),
         id="create_post_back_button",
-        state=CreatePost.select_category,
+        state=CreatePost.SELECT_CATEGORY,
     ),
-    Cancel(
+    Start(
         Format("{cancel_button[text]}"),
-        on_click=back_to_main_menu_handler,
+        id="create_post_cancel_button",
+        state=Main.MAIN,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.DELETE_AND_SEND,
     ),
 )
 
@@ -77,10 +94,13 @@ create_post_confirm_kbd = Group(
     SwitchTo(
         text=Format("{back_button[text]}"),
         id="create_post_back_button",
-        state=CreatePost.select_anonymity,
+        state=CreatePost.SELECT_ANONYMITY,
     ),
-    Cancel(
+    Start(
         Format("{cancel_button[text]}"),
-        on_click=back_to_main_menu_handler,
+        id="create_post_cancel_button",
+        state=Main.MAIN,
+        mode=StartMode.RESET_STACK,
+        show_mode=ShowMode.DELETE_AND_SEND,
     ),
 )

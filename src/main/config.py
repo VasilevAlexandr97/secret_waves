@@ -1,7 +1,8 @@
 from pathlib import Path
+
 import yaml
 
-from pydantic import Field, SecretStr, field_validator, ValidationInfo
+from pydantic import Field, SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,6 +27,16 @@ class PostgresConfig(BaseSettings):
         return f"postgresql+asyncpg://{self.user}:{self.password.get_secret_value()}@{self.host}:{self.port}/{self.database}"
 
 
+class RedisConfig(BaseSettings):
+    host: str
+    port: str
+    password: SecretStr
+
+    @property
+    def dsn(self) -> str:
+        return f"redis://:{self.password.get_secret_value()}@{self.host}:{self.port}"
+
+
 class AdminConfig(BaseSettings):
     postgres: PostgresConfig
 
@@ -43,6 +54,8 @@ class TgBotConfig(BaseSettings):
     messages: dict[str, str] = Field(default_factory=dict)
 
     postgres: PostgresConfig
+    redis: RedisConfig
+
     telegram_token: str = ""
 
     model_config = SettingsConfigDict(

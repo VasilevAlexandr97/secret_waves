@@ -28,7 +28,6 @@ class MessageKeys(StrEnum):
 
     # CREATE POST BUTTONS
     CREATE_POST_BUTTON = "create_post"
-    CREATE_POST_AGAIN_BUTTON = "create_post_again"
     FULLY_ANONYMOUS_BUTTON = "fully_anonymous"
     LINKED_ANONYMOUS_BUTTON = "linked_anonymous"
     CREATE_POST_CONFIRM_BUTTON = "create_post_confirm"

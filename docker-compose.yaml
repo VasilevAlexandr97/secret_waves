@@ -7,6 +7,7 @@ services:
     command: uv run aiogram run polling src:dp --log-level debug --reload
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./src/:/app/src/
       - ./migrations/:/app/migrations/
@@ -38,5 +39,20 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  redis:
+    image: redis:8.0.2-alpine
+    container_name: secret-waves-redis-dev
+    env_file:
+      - .env
+    ports:
+      - 6379:6379 # default redis port
+    volumes:
+      - redis_data:/data
+    # environment:
+    #   - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: redis-server --requirepass ${REDIS__PASSWORD}
+
+
 volumes:
   pgdata:
+  redis_data:

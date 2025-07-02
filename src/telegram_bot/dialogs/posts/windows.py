@@ -28,7 +28,7 @@ create_post_input_content_window = Window(
     ),
     create_post_input_content_kbd,
     getter=create_post_input_content_getter,
-    state=CreatePost.input_content,
+    state=CreatePost.INPUT_CONTENT,
 )
 
 
@@ -36,7 +36,7 @@ create_post_select_category_window = Window(
     Format("{message_text}"),
     create_post_categories_kbd,
     getter=create_post_select_category_getter,
-    state=CreatePost.select_category,
+    state=CreatePost.SELECT_CATEGORY,
 )
 
 
@@ -44,7 +44,7 @@ create_post_select_anonymity_window = Window(
     Format("{message_text}"),
     create_post_anonymity_types_kbd,
     getter=create_post_select_anonymity_getter,
-    state=CreatePost.select_anonymity,
+    state=CreatePost.SELECT_ANONYMITY,
 )
 
 
@@ -52,6 +52,6 @@ create_post_confirm_window = Window(
     Format("{message_text}"),
     create_post_confirm_kbd,
     getter=create_post_confirm_getter,
-    state=CreatePost.confirm,
+    state=CreatePost.CONFIRM,
 )
 
