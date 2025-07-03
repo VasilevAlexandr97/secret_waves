@@ -6,3 +6,7 @@ class CreatePost(StatesGroup):
     SELECT_CATEGORY = State()
     SELECT_ANONYMITY = State()
     CONFIRM = State()
+
+
+class ReadPost(StatesGroup):
+    READ = State()

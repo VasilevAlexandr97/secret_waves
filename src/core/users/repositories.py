@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.operators import eq
 
 from src.core.auth.models import LoginInDTO
-from src.core.users.models import User, UserID
+from src.core.users.models import User, UserId
 
 
 class UserRepositoryProtocol(Protocol):
@@ -14,14 +14,14 @@ class UserRepositoryProtocol(Protocol):
     async def add_user(
         self,
         user_dto: LoginInDTO,
-    ) -> UserID:
+    ) -> UserId:
         ...
 
     @abstractmethod
     async def get_user_id_by_telegram_id(
         self,
         telegram_id: int,
-    ) -> UserID | None:
+    ) -> UserId | None:
         ...
 
 
@@ -35,18 +35,18 @@ class UserRepository(UserRepositoryProtocol):
     async def add_user(
         self,
         user_dto: LoginInDTO,
-    ) -> UserID:
+    ) -> UserId:
         model = User(telegram_id=user_dto.telegram_id)
         self.session.add(model)
         await self.session.flush()
-        return UserID(model.id)
+        return UserId(model.id)
 
     async def get_user_id_by_telegram_id(
         self,
         telegram_id: int,
-    ) -> UserID | None:
+    ) -> UserId | None:
         stmt = select(User.id).where(
             eq(User.telegram_id, telegram_id),
         )
         user_id = await self.session.scalar(stmt)
-        return UserID(user_id) if user_id else None
+        return UserId(user_id) if user_id else None

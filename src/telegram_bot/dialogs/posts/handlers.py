@@ -34,6 +34,7 @@ async def create_post_input_content_handler(
 
     if message.text is not None:
         text_length = len(message.text)
+        logger.debug(f"text_length: {text_length}")
         min_length = 40
         max_length = 600
 

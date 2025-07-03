@@ -9,12 +9,12 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.core.database.mixins import TimestampsMixin
 from src.core.database.models import Base
 
-UserID = NewType("UserID", uuid.UUID)
+UserId = NewType("UserId", uuid.UUID)
 
 
 @dataclass
 class UserDTO:
-    id: uuid.UUID | None
+    id: UserId | None
     telegram_id: int
     username: str | None
 

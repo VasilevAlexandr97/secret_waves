@@ -2,6 +2,7 @@ import uuid
 
 from dataclasses import dataclass
 from enum import StrEnum
+from typing import NewType
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -9,33 +10,50 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.core.database.mixins import TimestampsMixin
 from src.core.database.models import Base
 
+CategoryId = NewType("CategoryId", int)
+PostId = NewType("PostId", int)
+AttachmentId = NewType("AttachmentId", int)
+
 
 class AttachmentType(StrEnum):
     VOICE = "voice"
 
 
+class PostStatus(StrEnum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+
+
 @dataclass
 class CategoryDTO:
-    id: int
+    id: CategoryId
     name: str
 
 
 @dataclass
 class AttachmentDTO:
-    id: int | None
+    id: AttachmentId| None
     attachment_type: AttachmentType
     file_id: str | None
     post_id: int
 
 
-# Note: Добавить проверку валидности в дата класс
+# TODO: Добавить проверку валидности в дата класс
 @dataclass
 class PostDTO:
-    id: int | None
+    id: PostId | None
     content: str | None
     category_id: int
     attachment: AttachmentDTO | None
     user_id: uuid.UUID | None
+    status: PostStatus = PostStatus.PENDING
+
+
+@dataclass
+class UpdatePostDTO:
+    post_id: PostId
+    status: PostStatus | None = None
 
 
 class Category(Base, TimestampsMixin):
@@ -57,6 +75,9 @@ class Post(Base, TimestampsMixin):
 
     category_id: Mapped[int] = mapped_column(
         ForeignKey("post_categories.id", ondelete="CASCADE"),
+    )
+    status: Mapped[str] = mapped_column(
+        default=PostStatus.PENDING, server_default=PostStatus.PENDING,
     )
     category: Mapped["Category"] = relationship(back_populates="posts")
 

@@ -1,7 +1,7 @@
 from src.core.auth.id_providers import IdProvider
 from src.core.auth.models import LoginInDTO
 from src.core.database.transaction_manager import TransactionManager
-from src.core.users.models import UserID
+from src.core.users.models import UserId
 from src.core.users.repositories import UserRepositoryProtocol
 
 
@@ -18,7 +18,7 @@ class AuthService:
         self,
         id_provider: IdProvider,
         login_in_dto: LoginInDTO,
-    ) -> UserID:
+    ) -> UserId:
         try:
             user_id = await id_provider.get_current_user_id()
         except ValueError:

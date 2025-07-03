@@ -5,9 +5,10 @@ import yaml
 from pydantic import Field, SecretStr, ValidationInfo, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+BASE_PATH = Path(__file__).resolve().parent.parent.parent
 
 def read_yaml(path: Path) -> dict:
-    with open(path, "r", encoding="utf-8") as f:
+    with Path.open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -39,6 +40,9 @@ class RedisConfig(BaseSettings):
 
 class AdminConfig(BaseSettings):
     postgres: PostgresConfig
+
+    templates_dir_path: Path = BASE_PATH / "src/admin_panel/templates"
+    debug: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",
