@@ -87,17 +87,20 @@ class AttachmentView(ModelView, model=Attachment):
     ]
 
 class ModerationPostView(BaseView):
-    name = "Moderation Posts"
+    name = "Posts moderation"
 
-    @expose("/moderation_posts/", methods=["GET"])
+    @expose("/posts_moderation/", methods=["GET"])
     async def moderation_posts_page(self, request: Request):
         container = request.scope["state"]["dishka_container"]
         async with container() as r_c:
             post_service: PostService = await r_c.get(PostService)
-            result = await post_service.get_posts_for_moderation(limit=50, offset=0)
+            result = await post_service.get_posts_for_moderation(
+                limit=50,
+                offset=0,
+            )
             return await self.templates.TemplateResponse(
                 request,
-                "moderation_posts.html",
+                "posts_moderation.html",
                 context={
                     "posts": result.items,
                     "count_posts": result.count,

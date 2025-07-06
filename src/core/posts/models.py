@@ -1,10 +1,11 @@
+from datetime import datetime
 import uuid
 
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import NewType
 
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database.mixins import TimestampsMixin
@@ -111,3 +112,23 @@ class Attachment(Base, TimestampsMixin):
         ForeignKey("posts.id", ondelete="CASCADE"),
     )
     post: Mapped["Post"] = relationship(back_populates="attachment")
+
+
+class PostView(Base):
+    __tablename__ = "post_views"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    post_id: Mapped[int] = mapped_column(
+        ForeignKey("posts.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    viewed_at: Mapped[datetime] = mapped_column(
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    user: Mapped["User"] = relationship(back_populates="post_views")
+    post: Mapped["Post"] = relationship(back_populates="post_views")
