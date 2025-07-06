@@ -33,10 +33,13 @@ class CategoryDTO:
 
 @dataclass
 class AttachmentDTO:
-    id: AttachmentId| None
-    attachment_type: AttachmentType
+    id: AttachmentId | None
+    type: AttachmentType
+    s3_key: str
     file_id: str | None
     post_id: int
+
+    url: str | None = None
 
 
 # TODO: Добавить проверку валидности в дата класс
@@ -45,6 +48,7 @@ class PostDTO:
     id: PostId | None
     content: str | None
     category_id: int
+    category: CategoryDTO | None
     attachment: AttachmentDTO | None
     user_id: uuid.UUID | None
     status: PostStatus = PostStatus.PENDING
@@ -76,10 +80,11 @@ class Post(Base, TimestampsMixin):
     category_id: Mapped[int] = mapped_column(
         ForeignKey("post_categories.id", ondelete="CASCADE"),
     )
+    category: Mapped["Category"] = relationship(back_populates="posts")
+
     status: Mapped[str] = mapped_column(
         default=PostStatus.PENDING, server_default=PostStatus.PENDING,
     )
-    category: Mapped["Category"] = relationship(back_populates="posts")
 
     attachment: Mapped["Attachment"] = relationship(
         back_populates="post",
@@ -98,8 +103,9 @@ class Attachment(Base, TimestampsMixin):
     __tablename__ = "post_attachments"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    attachment_type: Mapped[str] = mapped_column(String(20))
-    file_id: Mapped[str] = mapped_column(nullable=True)
+    type: Mapped[str] = mapped_column(String(20))
+    s3_key: Mapped[str] = mapped_column(nullable=False)
+    file_id: Mapped[str] = mapped_column(nullable=True) # for telegram
 
     post_id: Mapped[int] = mapped_column(
         ForeignKey("posts.id", ondelete="CASCADE"),

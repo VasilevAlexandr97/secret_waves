@@ -13,10 +13,17 @@ from src.main.config import load_admin_config
 settings = load_admin_config()
 
 config = context.config
-config.set_main_option(
-    "sqlalchemy.url",
-    settings.postgres.dsn_psycopg2,
-)
+
+if settings.debug:
+    config.set_main_option(
+        "sqlalchemy.url",
+        f"postgresql://{settings.postgres.user}:{settings.postgres.password.get_secret_value()}@127.0.0.1:{settings.postgres.port}/{settings.postgres.database}",
+    )
+else:
+    config.set_main_option(
+        "sqlalchemy.url",
+        settings.postgres.dsn_psycopg2,
+    )
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

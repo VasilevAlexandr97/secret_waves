@@ -7,6 +7,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_PATH = Path(__file__).resolve().parent.parent.parent
 
+
 def read_yaml(path: Path) -> dict:
     with Path.open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
@@ -38,8 +39,18 @@ class RedisConfig(BaseSettings):
         return f"redis://:{self.password.get_secret_value()}@{self.host}:{self.port}"
 
 
+class S3Config(BaseSettings):
+    access_key: SecretStr
+    secret_key: SecretStr
+    region_name: str
+    bucket_name: str
+    endpoint_url: str | None = None
+
+
 class AdminConfig(BaseSettings):
     postgres: PostgresConfig
+
+    s3: S3Config
 
     templates_dir_path: Path = BASE_PATH / "src/admin_panel/templates"
     debug: bool = False
@@ -59,8 +70,10 @@ class TgBotConfig(BaseSettings):
 
     postgres: PostgresConfig
     redis: RedisConfig
+    s3: S3Config
 
     telegram_token: str = ""
+    debug: bool = False
 
     model_config = SettingsConfigDict(
         env_file=".env",

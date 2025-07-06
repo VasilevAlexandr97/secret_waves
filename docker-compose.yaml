@@ -8,6 +8,7 @@ services:
     depends_on:
       - postgres
       - redis
+      - minio
     volumes:
       - ./src/:/app/src/
       - ./migrations/:/app/migrations/
@@ -17,9 +18,10 @@ services:
     container_name: secret-waves-admin-dev
     env_file:
       - .env
-    command: sh -c "uv run alembic upgrade head && uv run uvicorn src:admin_app --host 0.0.0.0 --port 8000 --reload --log-level debug"
+    command: uv run uvicorn src:admin_app --host 0.0.0.0 --port 8000 --reload --log-level debug
     depends_on:
       - postgres
+      - minio
     ports:
       - 8000:8000
     volumes:
@@ -52,7 +54,19 @@ services:
     #   - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: redis-server --requirepass ${REDIS__PASSWORD}
 
-
+  minio:
+    image: minio/minio:latest
+    container_name: secret-waves-minio-dev
+    ports: 
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD}
+    volumes:
+      - ./minio_data:/data
+    command: server /data --console-address ":9001"
+    
 volumes:
   pgdata:
   redis_data:

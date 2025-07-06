@@ -23,11 +23,17 @@ from src.admin_panel.views.posts import (
     router as admin_posts_router,
 )
 from src.admin_panel.views.users import UserView
-from src.main.config import AdminConfig, PostgresConfig, load_admin_config
+from src.main.config import (
+    AdminConfig,
+    PostgresConfig,
+    S3Config,
+    load_admin_config,
+)
 from src.main.providers import (
     AuthProvider,
     DatabaseProvider,
     PostProvider,
+    S3Provider,
     UserProvider,
 )
 
@@ -46,6 +52,10 @@ class AdminConfigProvider(Provider):
     @provide(scope=Scope.APP)
     def get_postgres_config(self) -> PostgresConfig:
         return self.config.postgres
+
+    @provide(scope=Scope.APP)
+    def s3_config(self) -> S3Config:
+        return self.config.s3
 
 
 def setup_admin_views(
@@ -99,6 +109,7 @@ def create_admin_app() -> FastAPI:
         AuthProvider(),
         UserProvider(),
         PostProvider(),
+        S3Provider(),
     )
     setup_dishka(container, app)
     return app

@@ -80,7 +80,7 @@ class PostView(ModelView, model=Post):
 class AttachmentView(ModelView, model=Attachment):
     column_list: ClassVar[list[Any]] = [
         Attachment.id,
-        Attachment.attachment_type,
+        Attachment.type,
         Attachment.file_id,
         Attachment.post_id,
         Attachment.post,
@@ -94,7 +94,7 @@ class ModerationPostView(BaseView):
         container = request.scope["state"]["dishka_container"]
         async with container() as r_c:
             post_service: PostService = await r_c.get(PostService)
-            result = await post_service.get_pending_posts(limit=50, offset=0)
+            result = await post_service.get_posts_for_moderation(limit=50, offset=0)
             return await self.templates.TemplateResponse(
                 request,
                 "moderation_posts.html",

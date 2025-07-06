@@ -25,6 +25,7 @@ class MessageKeys(StrEnum):
     CREATE_POST_LINKED_ANONYMITY_MESSAGE = "create_post_linked_anonymity_message"
     CREATE_POST_CONFIRM_MESSAGE = "create_post_confirm_message"
     CREATE_POST_SUCCESS_MESSAGE = "create_post_success_message"
+    CREATE_POST_ERROR_MESSAGE = "create_post_error_message"
 
     # CREATE POST BUTTONS
     CREATE_POST_BUTTON = "create_post"

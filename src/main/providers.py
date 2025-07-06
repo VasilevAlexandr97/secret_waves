@@ -18,15 +18,18 @@ from src.core.database.transaction_manager import (
     TransactionManager,
     TransactionManagerInterface,
 )
+from src.core.files.file_manager import S3FileManager
 from src.core.posts.repositories import (
+    AttachmentRepository,
+    AttachmentRepositoryProtocol,
     CategoryRepository,
     CategoryRepositoryProtocol,
     PostRepository,
     PostRepositoryProtocol,
 )
-from src.core.posts.services import PostService
+from src.core.posts.services import AttachmentService, PostService
 from src.core.users.repositories import UserRepository, UserRepositoryProtocol
-from src.main.config import PostgresConfig
+from src.main.config import PostgresConfig, S3Config
 
 
 class DatabaseProvider(Provider):
@@ -65,6 +68,11 @@ class DatabaseProvider(Provider):
     )
 
 
+class S3Provider(Provider):
+    @provide(scope=Scope.APP)
+    def get_s3_file_manager(self, config: S3Config) -> S3FileManager:
+        return S3FileManager(settings=config)
+
 class AuthProvider(Provider):
     auth_service = provide(
         AuthService,
@@ -93,6 +101,18 @@ class PostProvider(Provider):
         provides=CategoryRepositoryProtocol,
     )
 
+    attachment_repository = provide(
+        AttachmentRepository,
+        scope=Scope.REQUEST,
+    )
+    attachment_repository_protocol = alias(
+        source=AttachmentRepository,
+        provides=AttachmentRepositoryProtocol,
+    )
+    attachment_service = provide(
+        AttachmentService,
+        scope=Scope.REQUEST,
+    )
     post_repository = provide(
         PostRepository,
         scope=Scope.REQUEST,

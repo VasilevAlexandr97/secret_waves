@@ -11,6 +11,8 @@
                 <thead>
                     <th style="width: 80px;">ID</th>
                     <th style="width: 300px;">Content</th>
+                    <th style="width: 100px;">Category</th>
+                    <th style="width: 100px;">Attachment</th>
                     <th style="width: 160px;">Actions</th>
                 </thead>
                 <tbody>
@@ -20,7 +22,21 @@
                             <a href="/admin/post/details/{{ post.id }}">{{ post.id }}</a>
                         </td>
                         <td style="max-width: 300px; white-space: normal;">
-                            {{post.content}}
+                            {% if post.content %}
+                                {{post.content}}
+                            {% else %}
+                                ...
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ post.category.name }}
+                        </td>
+                        <td>
+                            {% if post.attachment %}
+                                <audio controls src="{{ post.attachment.url }}" preload="metadata"></audio>
+                            {% else %}
+                                ...
+                            {% endif %}
                         </td>
                         <td>
                             <a 

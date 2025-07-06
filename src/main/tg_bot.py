@@ -7,11 +7,17 @@ from aiogram_dialog import setup_dialogs
 from dishka import Provider, Scope, make_async_container, provide
 from dishka.integrations.aiogram import setup_dishka
 
-from src.main.config import PostgresConfig, TgBotConfig, load_tgbot_config
+from src.main.config import (
+    PostgresConfig,
+    S3Config,
+    TgBotConfig,
+    load_tgbot_config,
+)
 from src.main.providers import (
     AuthProvider,
     DatabaseProvider,
     PostProvider,
+    S3Provider,
     UserProvider,
 )
 from src.telegram_bot.dialogs.main.dialogs import main_dialog
@@ -34,6 +40,10 @@ class TgBotConfigProvider(Provider):
     @provide(scope=Scope.APP)
     def get_postgres_config(self) -> PostgresConfig:
         return self.config.postgres
+
+    @provide(scope=Scope.APP)
+    def get_s3_config(self) -> S3Config:
+        return self.config.s3
 
     @provide(scope=Scope.APP)
     def get_message_service(self) -> MessageService:
@@ -71,6 +81,7 @@ def create_tgbot_app() -> tuple[Bot, Dispatcher]:
         AuthProvider(),
         UserProvider(),
         PostProvider(),
+        S3Provider(),
     )
     setup_dishka(container, dp)
     setup_dialogs(dp)

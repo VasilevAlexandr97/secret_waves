@@ -1,5 +1,7 @@
 import logging
 
+from tempfile import SpooledTemporaryFile
+
 from aiogram import types
 from aiogram_dialog import DialogManager, ShowMode, StartMode
 from aiogram_dialog.widgets.input import MessageInput
@@ -9,6 +11,8 @@ from dishka.integrations.aiogram_dialog import inject
 
 from src.core.auth.models import LoginInDTO
 from src.core.auth.services import AuthService
+from src.core.files.dto import FileDTO
+from src.core.posts.exceptions import PostCreateError
 from src.core.posts.models import (
     AttachmentDTO,
     AttachmentType,
@@ -19,9 +23,11 @@ from src.telegram_bot.constants.messages import MessageKeys
 from src.telegram_bot.dialogs.main.states import Main
 from src.telegram_bot.dialogs.posts.states import CreatePost
 from src.telegram_bot.services.message_service import MessageService
+import aiofiles
 
 logger = logging.getLogger(__name__)
 
+MEMORY_THESHOLD = 50 * 1024 * 1024
 
 @inject
 async def create_post_input_content_handler(
@@ -31,6 +37,7 @@ async def create_post_input_content_handler(
     message_service: FromDishka[MessageService],
 ):
     logger.debug(f"message: {message}")
+    attachment = None
 
     if message.text is not None:
         text_length = len(message.text)
@@ -43,19 +50,19 @@ async def create_post_input_content_handler(
                 MessageKeys.CREATE_POST_INVALID_CONTENT_MESSAGE,
             )
             await message.answer(message_text)
-            dialog_manager.show_mode = ShowMode.EDIT
+            dialog_manager.show_mode = ShowMode.DELETE_AND_SEND
             return
-    file_id = None
-    attachment_type = None
+
     if message.text is None and message.voice is not None:
-        file_id = message.voice.file_id
-        attachment_type = AttachmentType.VOICE
+        attachment = {
+            "file_id": message.voice.file_id,
+            "mime_type": message.voice.mime_type,
+        }
 
     dialog_manager.dialog_data.update(
         {
             "content": message.text,
-            "attachment_type": attachment_type,
-            "file_id": file_id,
+            "attachment": attachment,
         },
     )
     await dialog_manager.switch_to(CreatePost.SELECT_CATEGORY)
@@ -91,8 +98,8 @@ async def create_post_confirm_handler(
     post_service: FromDishka[PostService],
     message_service: FromDishka[MessageService],
 ):
-    post_data_dict = dialog_manager.dialog_data
     id_provider = None
+    post_data_dict = dialog_manager.dialog_data
     if not post_data_dict["is_anonymous"]:
         id_provider = dialog_manager.middleware_data["id_provider"]
         await auth_service.telegram_authenticate(
@@ -102,33 +109,44 @@ async def create_post_confirm_handler(
             ),
         )
 
-    attachment = None
-    if post_data_dict.get("attachment_type") == AttachmentType.VOICE:
-        attachment = AttachmentDTO(
-            id=None,
-            attachment_type=AttachmentType.VOICE,
-            file_id=post_data_dict["file_id"],
-            post_id=0,
-        )
-
     post_data = PostDTO(
         id=None,
         content=post_data_dict["content"],
         category_id=post_data_dict["category_id"],
-        attachment=attachment,
+        category=None,
+        attachment=None,
         user_id=None,
     )
+    attachment: dict | None = post_data_dict.get("attachment")
+    file_data = None
+    # Загружаем файл в память или временный файл
+    if attachment is not None:
+        file = await callback_query.message.bot.download(
+            file=attachment["file_id"],
+        )
+        file_data = FileDTO(
+            file_id=attachment["file_id"],
+            mime_type=attachment["mime_type"],
+            file=file,
+        )
 
-    await post_service.create_post(
-        post_data=post_data,
-        id_provider=id_provider,
-    )
-    success_message = message_service.get_message(
-        MessageKeys.CREATE_POST_SUCCESS_MESSAGE,
-    )
-    await callback_query.message.answer(text=success_message)
+    try:
+        await post_service.create_post(
+            id_provider=id_provider,
+            post_data=post_data,
+            file_data=file_data,
+        )
+        message = message_service.get_message(
+            MessageKeys.CREATE_POST_SUCCESS_MESSAGE,
+        )
+    except PostCreateError:
+        message = message_service.get_message(
+            MessageKeys.CREATE_POST_ERROR_MESSAGE,
+        )
+    await callback_query.message.answer(text=message)
     await dialog_manager.start(
         Main.MAIN,
         mode=StartMode.RESET_STACK,
         show_mode=ShowMode.DELETE_AND_SEND,
     )
+

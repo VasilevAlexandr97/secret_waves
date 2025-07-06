@@ -12,6 +12,8 @@ from src.core.exceptions import EntityNotFoundError
 from src.core.posts.mappers import map_post_model_to_dto
 from src.core.posts.models import (
     Attachment,
+    AttachmentDTO,
+    AttachmentId,
     Category,
     CategoryDTO,
     CategoryId,
@@ -35,9 +37,18 @@ class CategoryRepositoryProtocol(Protocol):
         raise NotImplementedError
 
 
+class AttachmentRepositoryProtocol(Protocol):
+    @abstractmethod
+    async def add_attachment(
+        self,
+        attachment_data: AttachmentDTO,
+    ) -> AttachmentId:
+        raise NotImplementedError
+
+
 class PostRepositoryProtocol(Protocol):
     @abstractmethod
-    async def add_post(self, post_data: PostDTO) -> int:
+    async def add_post(self, post_data: PostDTO) -> PostId:
         raise NotImplementedError
 
     @abstractmethod
@@ -84,6 +95,28 @@ class CategoryRepository(CategoryRepositoryProtocol):
         return CategoryDTO(id=CategoryId(category.id), name=category.name)
 
 
+class AttachmentRepository(AttachmentRepositoryProtocol):
+    def __init__(
+        self,
+        session: AsyncSession,
+    ):
+        self._session = session
+
+    async def add_attachment(
+        self,
+        attachment_data: AttachmentDTO,
+    ) -> AttachmentId:
+        attachment_model = Attachment(
+            type=attachment_data.type,
+            s3_key=attachment_data.s3_key,
+            file_id=attachment_data.file_id,
+            post_id=attachment_data.post_id,
+        )
+        self._session.add(attachment_model)
+        await self._session.flush()
+        return AttachmentId(attachment_model.id)
+
+
 class PostRepository(PostRepositoryProtocol):
     def __init__(
         self,
@@ -91,11 +124,11 @@ class PostRepository(PostRepositoryProtocol):
     ):
         self._session = session
 
-    async def add_post(self, post_data: PostDTO) -> int:
+    async def add_post(self, post_data: PostDTO) -> PostId:
         attachment_model = None
         if post_data.attachment:
             attachment_model = Attachment(
-                attachment_type=post_data.attachment.attachment_type,
+                type=post_data.attachment.type,
                 file_id=post_data.attachment.file_id,
             )
         post_model = Post(
@@ -106,7 +139,7 @@ class PostRepository(PostRepositoryProtocol):
         )
         self._session.add(post_model)
         await self._session.flush()
-        return post_model.id
+        return PostId(post_model.id)
 
     async def update_post(self, update_data: UpdatePostDTO) -> PostId:
         update_values = {}
@@ -141,7 +174,10 @@ class PostRepository(PostRepositoryProtocol):
     ) -> list[PostDTO]:
         stmt = (
             select(Post)
-            .options(joinedload(Post.attachment))
+            .options(
+                joinedload(Post.category),
+                joinedload(Post.attachment),
+            )
             .where(eq(Post.status, status))
             .order_by(Post.id.asc())
             .offset(offset)
